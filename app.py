@@ -13,7 +13,7 @@ app.secret_key = "solace-super-secret-key-2025"
 # SETUP: Put your Google AI Studio API key here
 # Get it free from: https://aistudio.google.com/
 # =============================================
-GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY_HERE"
+GOOGLE_API_KEY = "AIzaSyD5Ad3Fi1bkKbe0CmXjybC247CPw43qE-Q"
 
 client = genai.Client(api_key=GOOGLE_API_KEY)
 
