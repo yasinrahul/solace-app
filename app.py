@@ -1,10 +1,7 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-from google import genai
-from datetime import datetime, date
-import sqlite3
-import hashlib
-import os
-import json
+import subprocess
+import sys
+
+subprocess.check_call([sys.executable, "-m", "pip", "install", "flask", "google-genai", "gunicorn"])
 
 app = Flask(__name__)
 app.secret_key = "solace-super-secret-key-2025"
