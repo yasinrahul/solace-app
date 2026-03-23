@@ -1,5 +1,10 @@
+[phases.setup]
+nixPkgs = ["python311"]
+
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = [
+  "pip install flask==3.0.0 google-genai==1.0.0 gunicorn==21.2.0"
+]
 
 [start]
-cmd = "gunicorn app:app"
+cmd = "gunicorn app:app --bind 0.0.0.0:$PORT"
