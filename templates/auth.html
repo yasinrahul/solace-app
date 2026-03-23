@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Solace — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0a0f1a;--surface:#111827;--surface2:#1a2235;--accent:#60b8a0;--accent2:#89d4be;--gold:#e8c97a;--rose:#e88a8a;--text:#e2eaf5;--muted:#7a8fa8;--border:rgba(96,184,160,0.18)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background-image:radial-gradient(ellipse at 20% 20%,rgba(96,184,160,0.06) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(232,201,122,0.05) 0%,transparent 60%)}
+.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:40px;max-width:440px;width:100%;animation:fadeUp 0.5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.logo{text-align:center;margin-bottom:28px}
+.logo span{font-size:44px}
+.logo h1{font-family:'Playfair Display',serif;font-size:30px;color:var(--accent);font-style:italic;margin-top:4px}
+.logo p{color:var(--muted);font-size:13px;margin-top:4px}
+.tabs{display:flex;background:var(--surface2);border-radius:14px;padding:4px;margin-bottom:24px}
+.auth-tab{flex:1;background:none;border:none;color:var(--muted);padding:10px;border-radius:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:14px;font-weight:500;transition:all 0.2s}
+.auth-tab.active{background:var(--accent);color:#0a0f1a}
+.panel{display:none}.panel.active{display:block;animation:fadeUp 0.3s ease}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;margin-top:14px}
+input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:12px 16px;font-size:14px;font-family:'Nunito',sans-serif;outline:none;transition:border-color 0.2s}
+input:focus{border-color:var(--accent)}
+.gender-row{display:flex;gap:8px;margin-top:6px}
+.g-btn{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 6px;cursor:pointer;color:var(--muted);font-size:12px;font-family:'Nunito',sans-serif;text-align:center;transition:all 0.2s}
+.g-btn:hover,.g-btn.sel{border-color:var(--accent);color:var(--accent2)}
+.lang-row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.l-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;color:var(--muted);font-size:12px;font-family:'Nunito',sans-serif;transition:all 0.2s}
+.l-btn:hover,.l-btn.sel{border-color:var(--accent);color:var(--accent2)}
+.submit-btn{width:100%;background:var(--accent);color:#0a0f1a;border:none;border-radius:14px;padding:14px;font-weight:700;font-size:15px;cursor:pointer;margin-top:20px;font-family:'Nunito',sans-serif;transition:all 0.2s}
+.submit-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.error-msg{background:rgba(232,138,138,0.1);border:1px solid rgba(232,138,138,0.3);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--rose);margin-top:12px;display:none}
+.step-indicator{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);transition:all 0.2s}
+.step-dot.active{background:var(--accent);border-color:var(--accent)}
+.reg-step{display:none}.reg-step.active{display:block;animation:fadeUp 0.3s ease}
+.next-btn{width:100%;background:var(--surface2);border:1px solid var(--accent);border-radius:14px;padding:12px;font-weight:600;font-size:14px;cursor:pointer;margin-top:16px;font-family:'Nunito',sans-serif;color:var(--accent);transition:all 0.2s}
+.next-btn:hover{background:rgba(96,184,160,0.1)}
+</style>
+</head>
+<body>
+<div class="auth-box">
+  <div class="logo">
+    <span>🌿</span>
+    <h1>Solace</h1>
+    <p>মানসিক সুস্থতার সঙ্গী / Your mental wellness companion</p>
+  </div>
+
+  <div class="tabs">
+    <button class="auth-tab active" onclick="switchAuth('login',this)">🔑 Login</button>
+    <button class="auth-tab" onclick="switchAuth('register',this)">✨ Register</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="panel active" id="panel-login">
+    <label>Username</label>
+    <input type="text" id="login-username" placeholder="তোমার username / Your username"/>
+    <label>Password</label>
+    <input type="password" id="login-password" placeholder="Password"/>
+    <div class="error-msg" id="login-error"></div>
+    <button class="submit-btn" onclick="doLogin()">Login →</button>
+  </div>
+
+  <!-- REGISTER (multi-step) -->
+  <div class="panel" id="panel-register">
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+
+    <!-- Step 1: Basic info -->
+    <div class="reg-step active" id="reg-step-1">
+      <label>Full Name / তোমার নাম</label>
+      <input type="text" id="reg-name" placeholder="e.g. Rahul"/>
+      <label>Username</label>
+      <input type="text" id="reg-username" placeholder="Choose a unique username"/>
+      <label>Password (min 6 characters)</label>
+      <input type="password" id="reg-password" placeholder="Create a password"/>
+      <div class="error-msg" id="reg-error-1"></div>
+      <button class="next-btn" onclick="regNext(2)">Next →</button>
+    </div>
+
+    <!-- Step 2: Gender -->
+    <div class="reg-step" id="reg-step-2">
+      <label style="font-size:14px;color:var(--text)">তুমি কে? / Who are you?</label>
+      <p style="font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:8px">Solace তোমার সাথে সেভাবেই কথা বলবে।</p>
+      <div class="gender-row">
+        <div class="g-btn" onclick="selGender('male',this)">👨<br/>Male<br/>পুরুষ</div>
+        <div class="g-btn" onclick="selGender('female',this)">👩<br/>Female<br/>মহিলা</div>
+        <div class="g-btn" onclick="selGender('other',this)">🧑<br/>Other<br/>অন্য</div>
+      </div>
+      <div class="error-msg" id="reg-error-2"></div>
+      <button class="next-btn" onclick="regNext(3)">Next →</button>
+    </div>
+
+    <!-- Step 3: Language -->
+    <div class="reg-step" id="reg-step-3">
+      <label style="font-size:14px;color:var(--text)">ভাষা / Language preference</label>
+      <p style="font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:8px">কোন ভাষায় কথা বলতে চাও?</p>
+      <div class="lang-row">
+        <div class="l-btn" onclick="selLang('english',this)">🇬🇧 English</div>
+        <div class="l-btn" onclick="selLang('bengali',this)">🇧🇩 বাংলা</div>
+        <div class="l-btn sel" onclick="selLang('both',this)">🌐 Both / উভয়</div>
+      </div>
+      <div class="error-msg" id="reg-error-3"></div>
+      <button class="submit-btn" onclick="doRegister()">Create Account 🌿</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let regGender = '', regLang = 'both';
+
+function switchAuth(tab, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 4000);
+}
+
+function selGender(g, el) {
+  regGender = g;
+  document.querySelectorAll('.g-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function selLang(l, el) {
+  regLang = l;
+  document.querySelectorAll('.l-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function regNext(step) {
+  if (step === 2) {
+    const name = document.getElementById('reg-name').value.trim();
+    const user = document.getElementById('reg-username').value.trim();
+    const pass = document.getElementById('reg-password').value.trim();
+    if (!name) { showError('reg-error-1', 'Please enter your name 😊'); return; }
+    if (!user) { showError('reg-error-1', 'Please choose a username 😊'); return; }
+    if (pass.length < 6) { showError('reg-error-1', 'Password must be at least 6 characters'); return; }
+  }
+  if (step === 3) {
+    if (!regGender) { showError('reg-error-2', 'Please select your gender 😊'); return; }
+  }
+  document.querySelectorAll('.reg-step').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
+  document.getElementById('reg-step-' + step).classList.add('active');
+  document.getElementById('dot-' + step).classList.add('active');
+}
+
+async function doRegister() {
+  if (!regGender) { showError('reg-error-3', 'Please go back and select gender'); return; }
+  const payload = {
+    name: document.getElementById('reg-name').value.trim(),
+    username: document.getElementById('reg-username').value.trim(),
+    password: document.getElementById('reg-password').value.trim(),
+    gender: regGender,
+    language: regLang
+  };
+  const res = await fetch('/register', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (data.error) { showError('reg-error-3', data.error); return; }
+  window.location.reload();
+}
+
+async function doLogin() {
+  const payload = {
+    username: document.getElementById('login-username').value.trim(),
+    password: document.getElementById('login-password').value.trim()
+  };
+  if (!payload.username || !payload.password) { showError('login-error', 'Please fill in all fields 😊'); return; }
+  const res = await fetch('/login', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (data.error) { showError('login-error', data.error); return; }
+  window.location.reload();
+}
+
+// Allow Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('panel-login').classList.contains('active')) doLogin();
+  }
+});
+</script>
+</body>
+</html>

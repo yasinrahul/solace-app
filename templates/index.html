@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Solace v2 — মানসিক সুস্থতার সঙ্গী</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0f1a;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --surface3: #1f2d45;
+  --accent: #60b8a0;
+  --accent2: #89d4be;
+  --gold: #e8c97a;
+  --rose: #e88a8a;
+  --text: #e2eaf5;
+  --muted: #7a8fa8;
+  --border: rgba(96,184,160,0.18);
+  --glow: rgba(96,184,160,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;background-image:radial-gradient(ellipse at 20% 20%, rgba(96,184,160,0.05) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(232,201,122,0.04) 0%, transparent 60%)}
+
+/* ONBOARDING */
+#onboarding{position:fixed;inset:0;background:rgba(10,15,26,0.97);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
+.onboard-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:40px;max-width:480px;width:100%;text-align:center;animation:fadeUp 0.5s ease}
+.onboard-card h1{font-family:'Playfair Display',serif;font-size:32px;color:var(--accent2);margin-bottom:8px}
+.onboard-card p{color:var(--muted);margin-bottom:28px;font-size:15px}
+.onboard-step{display:none}.onboard-step.active{display:block}
+.gender-options{display:flex;gap:12px;justify-content:center;margin:20px 0}
+.gender-btn{background:var(--surface2);border:2px solid var(--border);border-radius:16px;padding:20px 28px;cursor:pointer;transition:all 0.2s;color:var(--text);font-size:14px;font-family:'Nunito',sans-serif}
+.gender-btn:hover,.gender-btn.selected{border-color:var(--accent);background:rgba(96,184,160,0.1);color:var(--accent2)}
+.gender-btn .emoji{font-size:28px;display:block;margin-bottom:6px}
+.lang-options{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+.lang-btn{background:var(--surface2);border:2px solid var(--border);border-radius:12px;padding:12px 20px;cursor:pointer;transition:all 0.2s;color:var(--muted);font-size:13px;font-family:'Nunito',sans-serif}
+.lang-btn:hover,.lang-btn.selected{border-color:var(--accent);color:var(--accent2)}
+
+/* HEADER */
+header{padding:16px 28px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,15,26,0.92);backdrop-filter:blur(16px);z-index:100}
+.logo{font-family:'Playfair Display',serif;font-size:22px;color:var(--accent);font-style:italic}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.streak-badge{background:rgba(232,201,122,0.12);border:1px solid rgba(232,201,122,0.3);border-radius:20px;padding:6px 14px;font-size:13px;color:var(--gold)}
+.user-greeting{font-size:13px;color:var(--muted)}
+
+/* NAV */
+nav{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 28px;background:var(--surface);overflow-x:auto}
+nav::-webkit-scrollbar{height:3px}
+nav::-webkit-scrollbar-thumb{background:var(--border)}
+.tab-btn{background:none;border:none;color:var(--muted);padding:13px 16px;font-size:13px;font-family:'Nunito',sans-serif;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;font-weight:500}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* MAIN */
+main{flex:1;padding:24px 28px;max-width:860px;margin:0 auto;width:100%}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeUp 0.3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:18px}
+.card h2{font-family:'Playfair Display',serif;font-size:20px;color:var(--accent2);margin-bottom:4px}
+.card .subtitle{color:var(--muted);font-size:13px;margin-bottom:18px}
+
+/* AFFIRMATION */
+.aff-banner{background:linear-gradient(135deg,#0f2420 0%,#112030 100%);border:1px solid rgba(96,184,160,0.25);border-radius:20px;padding:28px;text-align:center;margin-bottom:18px}
+.aff-banner blockquote{font-family:'Playfair Display',serif;font-size:17px;font-style:italic;color:var(--accent2);line-height:1.7}
+
+/* CHAT */
+#chat-messages{height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 0;margin-bottom:14px}
+#chat-messages::-webkit-scrollbar{width:4px}
+#chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.msg{max-width:82%;padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.65;animation:fadeIn 0.3s ease}
+.msg.user{background:rgba(96,184,160,0.18);border:1px solid rgba(96,184,160,0.28);align-self:flex-end;border-bottom-right-radius:4px}
+.msg.ai{background:var(--surface2);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.typing{color:var(--muted);font-style:italic}
+.msg .msg-time{font-size:10px;color:var(--muted);margin-top:4px;text-align:right}
+.chat-row{display:flex;gap:10px}
+textarea,input[type=text]{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:14px;color:var(--text);padding:12px 16px;font-size:14px;font-family:'Nunito',sans-serif;resize:none;outline:none;transition:border-color 0.2s}
+textarea:focus,input:focus{border-color:var(--accent)}
+textarea{height:52px}
+.send-btn,.primary-btn,.sm-btn{background:var(--accent);color:#0a0f1a;border:none;border-radius:12px;padding:12px 20px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif}
+.send-btn:hover,.primary-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.sm-btn{padding:8px 16px;font-size:12px;border-radius:10px}
+
+/* MOOD */
+.mood-scale{display:flex;align-items:center;gap:12px;margin:14px 0}
+.mood-scale input[type=range]{flex:1;accent-color:var(--accent)}
+.mood-val{font-family:'Playfair Display',serif;font-size:38px;color:var(--accent);min-width:52px;text-align:center}
+.mood-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:14px}
+.mood-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
+.mood-bar-row .time{color:var(--muted);min-width:105px}
+.mood-bar{height:18px;border-radius:4px;background:linear-gradient(90deg,var(--rose),var(--accent));min-width:8px;transition:width 0.5s ease}
+
+/* JOURNAL */
+.prompt-box{background:linear-gradient(135deg,#0f2420,#111827);border:1px solid rgba(96,184,160,0.2);border-radius:14px;padding:14px 18px;margin-bottom:14px;font-style:italic;color:var(--accent2);font-size:14px}
+#journal-textarea{width:100%;height:170px;margin-bottom:12px}
+.feedback-box{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 14px 14px 0;padding:16px;font-size:14px;line-height:1.7;display:none;animation:fadeIn 0.4s ease;margin-top:14px}
+
+/* COPING */
+.coping-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+.coping-card{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:all 0.2s;text-align:center}
+.coping-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.coping-card .emoji{font-size:26px;margin-bottom:8px}
+.coping-card .label{font-size:12px;color:var(--muted)}
+.tip-result{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px;font-size:14px;line-height:1.7;display:none;animation:fadeIn 0.4s ease}
+
+/* MEDITATION */
+.meditation-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+.med-card{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:all 0.2s;text-align:center}
+.med-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.med-card.active{border-color:var(--gold);background:rgba(232,201,122,0.08)}
+.med-card .emoji{font-size:26px;margin-bottom:6px}
+.med-card .title{font-size:13px;color:var(--accent2);font-weight:600;margin-bottom:2px}
+.med-card .dur{font-size:11px;color:var(--muted)}
+.timer-circle{width:160px;height:160px;margin:20px auto;position:relative;display:flex;align-items:center;justify-content:center}
+.timer-circle svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.timer-circle .timer-text{font-family:'Playfair Display',serif;font-size:36px;color:var(--gold);z-index:1}
+.timer-controls{display:flex;gap:10px;justify-content:center;margin-top:16px}
+.timer-btn{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 24px;cursor:pointer;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;transition:all 0.2s}
+.timer-btn:hover{border-color:var(--gold);color:var(--gold)}
+.phase-label{text-align:center;color:var(--muted);font-size:13px;margin-top:10px;font-style:italic}
+
+/* MUSIC */
+.music-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.music-card{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:all 0.2s;text-align:center}
+.music-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.music-card.playing{border-color:var(--accent);background:rgba(96,184,160,0.08)}
+.music-card .emoji{font-size:28px;margin-bottom:6px}
+.music-card .name{font-size:13px;color:var(--accent2);margin-bottom:2px}
+.music-card .type{font-size:11px;color:var(--muted)}
+.visualizer{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:32px;margin-top:10px}
+.vis-bar{width:4px;background:var(--accent);border-radius:2px;animation:none}
+.vis-bar.active{animation:bounce 0.6s ease infinite alternate}
+.vis-bar:nth-child(2){animation-delay:0.1s}
+.vis-bar:nth-child(3){animation-delay:0.2s}
+.vis-bar:nth-child(4){animation-delay:0.15s}
+.vis-bar:nth-child(5){animation-delay:0.05s}
+@keyframes bounce{from{height:4px}to{height:24px}}
+
+/* ASSESSMENT */
+.quiz-progress{background:var(--surface2);border-radius:8px;height:6px;margin-bottom:20px}
+.quiz-progress-bar{background:var(--accent);border-radius:8px;height:6px;transition:width 0.4s ease}
+.quiz-question{font-size:15px;color:var(--text);margin-bottom:16px;line-height:1.6}
+.quiz-options{display:flex;flex-direction:column;gap:8px}
+.quiz-opt{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;cursor:pointer;transition:all 0.2s;font-size:14px;color:var(--muted);text-align:left;font-family:'Nunito',sans-serif}
+.quiz-opt:hover,.quiz-opt.selected{border-color:var(--accent);color:var(--text);background:rgba(96,184,160,0.08)}
+.assessment-result{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:20px;line-height:1.8;font-size:14px;display:none;animation:fadeIn 0.4s ease}
+
+/* STREAK */
+.streak-info{display:flex;align-items:center;gap:16px;background:rgba(232,201,122,0.07);border:1px solid rgba(232,201,122,0.2);border-radius:16px;padding:16px;margin-bottom:18px}
+.streak-num{font-family:'Playfair Display',serif;font-size:48px;color:var(--gold);line-height:1}
+.streak-label{font-size:13px;color:var(--muted)}
+.streak-label strong{color:var(--gold);display:block;font-size:16px}
+
+/* CRISIS */
+.crisis-box{background:rgba(232,138,138,0.07);border:1px solid rgba(232,138,138,0.25);border-radius:14px;padding:14px 18px;margin-top:18px;font-size:13px;color:var(--muted)}
+.crisis-box strong{color:var(--rose)}
+.crisis-box a{color:var(--accent)}
+
+/* INPUTS */
+input[type=text]{width:100%;margin-bottom:12px}
+select{background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:11px 16px;font-size:14px;font-family:'Nunito',sans-serif;outline:none;width:100%;margin-bottom:12px}
+select:focus{border-color:var(--accent)}
+
+@media(max-width:600px){main{padding:16px}nav{padding:0 12px}header{padding:14px 16px}.onboard-card{padding:28px 20px}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ ONBOARDING ═══════════════ -->
+<!-- Onboarding removed — handled by auth.html login/register -->
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header>
+  <span style="font-size:22px">🌿</span>
+  <span class="logo">Solace</span>
+  <div class="header-right">
+    <span class="streak-badge" id="header-streak">🔥 0 days</span>
+    <span class="user-greeting" id="header-greeting">Welcome</span>
+    <a href="/logout" style="background:rgba(232,138,138,0.12);border:1px solid rgba(232,138,138,0.25);border-radius:20px;padding:6px 14px;font-size:12px;color:#e88a8a;text-decoration:none;">🚪 Logout</a>
+  </div>
+</header>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav>
+  <button class="tab-btn active" onclick="switchTab('home',this)">🏠 Home</button>
+  <button class="tab-btn" onclick="switchTab('chat',this)">💬 Chat</button>
+  <button class="tab-btn" onclick="switchTab('mood',this)">📊 Mood</button>
+  <button class="tab-btn" onclick="switchTab('journal',this)">📝 Journal</button>
+  <button class="tab-btn" onclick="switchTab('meditation',this)">🧘 Meditate</button>
+  <button class="tab-btn" onclick="switchTab('music',this)">🎵 Music</button>
+  <button class="tab-btn" onclick="switchTab('coping',this)">💡 Coping</button>
+  <button class="tab-btn" onclick="switchTab('assessment',this)">📋 Quiz</button>
+</nav>
+
+<main>
+
+<!-- ═══ HOME ═══ -->
+<div id="tab-home" class="tab-panel active">
+  <div class="aff-banner">
+    <div style="font-size:28px;margin-bottom:10px">✨</div>
+    <blockquote id="aff-text">{{ affirmation }}</blockquote>
+  </div>
+  <div class="card">
+    <h2>Welcome to Solace 🌿</h2>
+    <p class="subtitle">তোমার নিরাপদ জায়গা / Your safe space</p>
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">
+      💬 <strong style="color:var(--accent2)">Chat</strong> — AI সঙ্গীর সাথে কথা বলো<br/>
+      📊 <strong style="color:var(--accent2)">Mood</strong> — মনের অবস্থা ট্র্যাক করো<br/>
+      📝 <strong style="color:var(--accent2)">Journal</strong> — লিখে মন হালকা করো<br/>
+      🧘 <strong style="color:var(--accent2)">Meditate</strong> — গাইডেড মেডিটেশন করো<br/>
+      🎵 <strong style="color:var(--accent2)">Music</strong> — শান্তির সুর শোনো<br/>
+      💡 <strong style="color:var(--accent2)">Coping</strong> — কৌশল শিখো<br/>
+      📋 <strong style="color:var(--accent2)">Quiz</strong> — মানসিক স্বাস্থ্য মূল্যায়ন করো
+    </p>
+  </div>
+  <div class="streak-info">
+    <div class="streak-num" id="home-streak">{{ streak }}</div>
+    <div>
+      <div class="streak-label"><strong>🔥 Day Streak</strong>প্রতিদিন অ্যাপ ব্যবহার করে স্ট্রিক বাড়াও!</div>
+    </div>
+  </div>
+  <div class="crisis-box">
+    <strong>⚠️ সংকটে আছো? / In crisis?</strong><br/>
+    🇧🇩 Kaan Pete Roi (Bangladesh): <a href="tel:01779-554391">01779-554391</a><br/>
+    🇮🇳 iCall India: <a href="tel:9152987821">9152987821</a> &nbsp;|&nbsp;
+    🌍 <a href="https://www.iasp.info/resources/Crisis_Centres/" target="_blank">Find your helpline</a>
+  </div>
+</div>
+
+<!-- ═══ CHAT ═══ -->
+<div id="tab-chat" class="tab-panel">
+  <div class="card">
+    <h2>Chat with Solace 💙</h2>
+    <p class="subtitle">মন খুলে বলো — কোনো বিচার নেই / Share freely — no judgment here</p>
+    <div id="chat-messages">
+      <div class="msg ai">নমস্কার! আমি Solace। আজকে কেমন আছো? / Hello! I'm Solace. How are you feeling today? 💙</div>
+    </div>
+    <div class="chat-row">
+      <textarea id="chat-input" placeholder="তোমার মনের কথা লেখো... / Type how you feel..." onkeydown="handleEnter(event)"></textarea>
+      <button class="send-btn" onclick="sendChat()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MOOD ═══ -->
+<div id="tab-mood" class="tab-panel">
+  <div class="card">
+    <h2>Mood Tracker 📊</h2>
+    <p class="subtitle">আজকে মনের অবস্থা কেমন? / How is your mood today?</p>
+    <div class="mood-scale">
+      <span>😔</span>
+      <input type="range" id="mood-slider" min="1" max="10" value="5" oninput="document.getElementById('mood-val').textContent=this.value"/>
+      <span>😊</span>
+      <span class="mood-val" id="mood-val">5</span>
+    </div>
+    <div class="mood-labels"><span>অনেক খারাপ / Very low</span><span>মাঝামাঝি / Neutral</span><span>ভালো / Good</span></div>
+    <input type="text" id="mood-note" placeholder="কেন এমন লাগছে? / What's affecting your mood? (optional)"/>
+    <button class="primary-btn" onclick="logMood()">Log Mood</button>
+    <div id="mood-tip" class="feedback-box"></div>
+  </div>
+  <div class="card">
+    <h2>History</h2>
+    <p class="subtitle">শেষ ১৪টি এন্ট্রি / Last 14 entries</p>
+    <div id="mood-chart"><p style="color:var(--muted);font-size:13px">No entries yet. Log your first mood!</p></div>
+  </div>
+</div>
+
+<!-- ═══ JOURNAL ═══ -->
+<div id="tab-journal" class="tab-panel">
+  <div class="card">
+    <h2>Daily Journal 📝</h2>
+    <p class="subtitle">লেখা মন হালকা করে / Writing helps lighten the heart</p>
+    <div class="prompt-box">💭 {{ journal_prompt }}</div>
+    <textarea id="journal-textarea" placeholder="এখানে মনের কথা লেখো... / Write freely here..."></textarea>
+    <button class="primary-btn" onclick="saveJournal()">Save & Get Reflection</button>
+    <div id="journal-feedback" class="feedback-box"></div>
+  </div>
+</div>
+
+<!-- ═══ MEDITATION ═══ -->
+<div id="tab-meditation" class="tab-panel">
+  <div class="card">
+    <h2>Guided Meditation 🧘</h2>
+    <p class="subtitle">একটি সেশন বেছে নাও / Choose a session</p>
+    <div class="meditation-grid">
+      <div class="med-card" onclick="startMeditation(300,'Breathing','শ্বাস-প্রশ্বাস',this)">
+        <div class="emoji">🫁</div>
+        <div class="title">Breathing</div>
+        <div class="dur">5 minutes</div>
+      </div>
+      <div class="med-card" onclick="startMeditation(600,'Body Scan','বডি স্ক্যান',this)">
+        <div class="emoji">🌊</div>
+        <div class="title">Body Scan</div>
+        <div class="dur">10 minutes</div>
+      </div>
+      <div class="med-card" onclick="startMeditation(900,'Mindfulness','মাইন্ডফুলনেস',this)">
+        <div class="emoji">🍃</div>
+        <div class="title">Mindfulness</div>
+        <div class="dur">15 minutes</div>
+      </div>
+      <div class="med-card" onclick="startMeditation(180,'Quick Calm','দ্রুত শান্তি',this)">
+        <div class="emoji">⚡</div>
+        <div class="title">Quick Calm</div>
+        <div class="dur">3 minutes</div>
+      </div>
+    </div>
+
+    <div id="meditation-player" style="display:none;text-align:center">
+      <div id="med-title" style="font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);margin-bottom:4px"></div>
+      <div class="timer-circle">
+        <svg viewBox="0 0 160 160" width="160" height="160">
+          <circle cx="80" cy="80" r="70" fill="none" stroke="var(--surface3)" stroke-width="8"/>
+          <circle id="timer-ring" cx="80" cy="80" r="70" fill="none" stroke="var(--gold)" stroke-width="8"
+            stroke-dasharray="439.8" stroke-dashoffset="0" stroke-linecap="round" style="transition:stroke-dashoffset 1s linear"/>
+        </svg>
+        <span class="timer-text" id="timer-display">0:00</span>
+      </div>
+      <div class="phase-label" id="phase-label">Press Start to begin</div>
+      <div class="timer-controls">
+        <button class="timer-btn" onclick="toggleTimer()" id="timer-toggle-btn">▶ Start</button>
+        <button class="timer-btn" onclick="resetTimer()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MUSIC ═══ -->
+<div id="tab-music" class="tab-panel">
+  <div class="card">
+    <h2>Calming Sounds 🎵</h2>
+    <p class="subtitle">শান্তির সুর / Soothing sounds generated with Web Audio</p>
+    <div class="music-grid" id="music-grid">
+      <div class="music-card" onclick="playSound('rain',this)">
+        <div class="emoji">🌧️</div>
+        <div class="name">Rain</div>
+        <div class="type">বৃষ্টির শব্দ</div>
+        <div class="visualizer"><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div></div>
+      </div>
+      <div class="music-card" onclick="playSound('ocean',this)">
+        <div class="emoji">🌊</div>
+        <div class="name">Ocean</div>
+        <div class="type">সমুদ্রের ঢেউ</div>
+        <div class="visualizer"><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div></div>
+      </div>
+      <div class="music-card" onclick="playSound('forest',this)">
+        <div class="emoji">🌲</div>
+        <div class="name">Forest</div>
+        <div class="type">বনের শব্দ</div>
+        <div class="visualizer"><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div></div>
+      </div>
+      <div class="music-card" onclick="playSound('white',this)">
+        <div class="emoji">🌫️</div>
+        <div class="name">White Noise</div>
+        <div class="type">হোয়াইট নয়েজ</div>
+        <div class="visualizer"><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div></div>
+      </div>
+      <div class="music-card" onclick="playSound('bowl',this)">
+        <div class="emoji">🔔</div>
+        <div class="name">Singing Bowl</div>
+        <div class="type">তিব্বতীয় বাটি</div>
+        <div class="visualizer"><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div></div>
+      </div>
+      <div class="music-card" onclick="playSound('binaural',this)">
+        <div class="emoji">🧠</div>
+        <div class="name">Binaural</div>
+        <div class="type">মস্তিষ্ক শান্ত করো</div>
+        <div class="visualizer"><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div></div>
+      </div>
+    </div>
+    <p id="now-playing" style="text-align:center;color:var(--muted);font-size:13px;margin-top:12px;font-style:italic">Click any sound to play 🎧</p>
+  </div>
+</div>
+
+<!-- ═══ COPING ═══ -->
+<div id="tab-coping" class="tab-panel">
+  <div class="card">
+    <h2>Coping Techniques 💡</h2>
+    <p class="subtitle">একটি বিষয় বেছে নাও / Tap a category for a personalized tip</p>
+    <div class="coping-grid">
+      <div class="coping-card" onclick="getCopingTip('breathing')"><div class="emoji">🫁</div><div class="label">Breathing / শ্বাস</div></div>
+      <div class="coping-card" onclick="getCopingTip('sleep')"><div class="emoji">🌙</div><div class="label">Sleep / ঘুম</div></div>
+      <div class="coping-card" onclick="getCopingTip('movement')"><div class="emoji">🚶</div><div class="label">Movement / নড়াচড়া</div></div>
+      <div class="coping-card" onclick="getCopingTip('social')"><div class="emoji">🤝</div><div class="label">Social / সামাজিক</div></div>
+      <div class="coping-card" onclick="getCopingTip('general')"><div class="emoji">💡</div><div class="label">General / সাধারণ</div></div>
+    </div>
+    <div id="coping-tip" class="tip-result"></div>
+  </div>
+</div>
+
+<!-- ═══ ASSESSMENT ═══ -->
+<div id="tab-assessment" class="tab-panel">
+  <div class="card">
+    <h2>Mental Health Quiz 📋</h2>
+    <p class="subtitle">তোমার মানসিক অবস্থা বোঝার জন্য / Understand your mental health better</p>
+
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <button class="sm-btn" onclick="startQuiz('anxiety')">😰 Anxiety</button>
+      <button class="sm-btn" onclick="startQuiz('depression')">😔 Depression</button>
+      <button class="sm-btn" onclick="startQuiz('sleep')">🌙 Sleep Quality</button>
+    </div>
+
+    <div id="quiz-container" style="display:none">
+      <div class="quiz-progress"><div class="quiz-progress-bar" id="quiz-bar"></div></div>
+      <div class="quiz-question" id="quiz-q"></div>
+      <div class="quiz-options" id="quiz-opts"></div>
+      <button class="primary-btn" style="margin-top:16px" onclick="nextQuestion()" id="quiz-next" disabled>Next →</button>
+    </div>
+
+    <div class="assessment-result" id="quiz-result"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════
+// PROFILE & ONBOARDING
+// ══════════════════════════════════════════════
+let profile = { name: '', gender: '', language: 'both' };
+
+function updateHeader() {
+  const greet = profile.name ? `নমস্কার, ${profile.name}! 👋` : 'Welcome 👋';
+  document.getElementById('header-greeting').textContent = greet;
+}
+
+async function loadProfile() {
+  // Use session data from server (v3 — login based)
+  const res = await fetch('/get_session');
+  const data = await res.json();
+  if (data.logged_in) {
+    profile = { name: data.name, gender: data.gender, language: data.language };
+    updateHeader();
+  }
+  const streakRes = await fetch('/get_streak');
+  const s = await streakRes.json();
+  document.getElementById('header-streak').textContent = `🔥 ${s.count} days`;
+  document.getElementById('home-streak').textContent = s.count;
+  loadMoodHistory();
+}
+
+// ══════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (tab === 'mood') loadMoodHistory();
+  if (tab === 'chat') loadChatHistory();
+}
+
+// ══════════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════════
+function handleEnter(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+async function loadChatHistory() {
+  const res = await fetch('/get_chat_history');
+  const history = await res.json();
+  if (history.length > 0) {
+    const box = document.getElementById('chat-messages');
+    box.innerHTML = '';
+    history.forEach(m => appendMessage(m.role === 'user' ? 'user' : 'ai', m.content, m.time));
+  }
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  appendMessage('user', msg);
+  input.value = '';
+  const typing = appendMessage('ai', '...', '', true);
+  try {
+    const res = await fetch('/chat', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ message: msg })
+    });
+    const data = await res.json();
+    typing.remove();
+    appendMessage('ai', data.reply);
+  } catch {
+    typing.remove();
+    appendMessage('ai', 'আমি এখানে আছি। / I\'m here. Please try again. 💙');
+  }
+}
+
+function appendMessage(role, text, time = '', isTyping = false) {
+  const box = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}${isTyping ? ' typing' : ''}`;
+  div.innerHTML = text.replace(/\n/g, '<br/>');
+  if (time) {
+    const t = document.createElement('div');
+    t.className = 'msg-time';
+    t.textContent = time;
+    div.appendChild(t);
+  }
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+// ══════════════════════════════════════════════
+// MOOD
+// ══════════════════════════════════════════════
+async function logMood() {
+  const mood = parseInt(document.getElementById('mood-slider').value);
+  const note = document.getElementById('mood-note').value;
+  const tipBox = document.getElementById('mood-tip');
+  tipBox.style.display = 'block';
+  tipBox.textContent = 'Getting a tip for you... / একটু অপেক্ষা করো...';
+  const res = await fetch('/log_mood', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ mood, note })
+  });
+  const data = await res.json();
+  tipBox.textContent = '💡 ' + data.tip;
+  loadMoodHistory();
+}
+
+async function loadMoodHistory() {
+  const res = await fetch('/get_mood_data');
+  const data = await res.json();
+  const chart = document.getElementById('mood-chart');
+  if (!data.length) { chart.innerHTML = '<p style="color:var(--muted);font-size:13px">No entries yet. Log your first mood!</p>'; return; }
+  chart.innerHTML = data.slice().reverse().map(e => `
+    <div class="mood-bar-row">
+      <span class="time">${e.timestamp.split(' ')[0]}</span>
+      <div class="mood-bar" style="width:${e.mood * 20}px"></div>
+      <span style="color:var(--accent);font-weight:600">${e.mood}/10</span>
+      ${e.note ? `<span style="color:var(--muted);font-size:11px">— ${e.note}</span>` : ''}
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// JOURNAL
+// ══════════════════════════════════════════════
+async function saveJournal() {
+  const entry = document.getElementById('journal-textarea').value.trim();
+  const fb = document.getElementById('journal-feedback');
+  if (!entry) { alert('Please write something first 😊'); return; }
+  fb.style.display = 'block';
+  fb.textContent = 'Solace is reflecting... / Solace ভাবছে...';
+  const res = await fetch('/save_journal', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ entry })
+  });
+  const data = await res.json();
+  fb.innerHTML = '🌱 <em>' + data.feedback + '</em>';
+}
+
+// ══════════════════════════════════════════════
+// COPING
+// ══════════════════════════════════════════════
+async function getCopingTip(cat) {
+  const tip = document.getElementById('coping-tip');
+  tip.style.display = 'block';
+  tip.textContent = 'Finding the right tip... / খুঁজছি...';
+  const res = await fetch('/get_coping_tip', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ category: cat })
+  });
+  const data = await res.json();
+  tip.innerHTML = '💙 ' + data.tip;
+}
+
+// ══════════════════════════════════════════════
+// MEDITATION TIMER
+// ══════════════════════════════════════════════
+let medTotal = 0, medRemaining = 0, medInterval = null, medRunning = false;
+const breathPhases = ['শ্বাস নাও / Breathe IN (4s)', 'ধরো / Hold (4s)', 'ছাড়ো / Breathe OUT (6s)'];
+let phaseIdx = 0, phaseTime = 0;
+const phaseDurations = [4, 4, 6];
+
+function startMeditation(secs, titleEn, titleBn, el) {
+  document.querySelectorAll('.med-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  medTotal = secs; medRemaining = secs; medRunning = false;
+  document.getElementById('meditation-player').style.display = 'block';
+  document.getElementById('med-title').textContent = titleEn + ' / ' + titleBn;
+  document.getElementById('timer-toggle-btn').textContent = '▶ Start';
+  updateTimerDisplay();
+  document.getElementById('phase-label').textContent = 'Press Start to begin / শুরু করতে Start চাপো';
+  if (medInterval) clearInterval(medInterval);
+}
+
+function toggleTimer() {
+  if (!medRunning) {
+    medRunning = true;
+    document.getElementById('timer-toggle-btn').textContent = '⏸ Pause';
+    phaseIdx = 0; phaseTime = 0;
+    medInterval = setInterval(() => {
+      if (medRemaining <= 0) {
+        clearInterval(medInterval); medRunning = false;
+        document.getElementById('timer-toggle-btn').textContent = '▶ Start';
+        document.getElementById('phase-label').textContent = '🎉 সম্পন্ন! / Complete!';
+        return;
+      }
+      medRemaining--;
+      phaseTime++;
+      if (phaseTime >= phaseDurations[phaseIdx]) { phaseTime = 0; phaseIdx = (phaseIdx + 1) % 3; }
+      document.getElementById('phase-label').textContent = breathPhases[phaseIdx];
+      updateTimerDisplay();
+    }, 1000);
+  } else {
+    medRunning = false;
+    clearInterval(medInterval);
+    document.getElementById('timer-toggle-btn').textContent = '▶ Resume';
+  }
+}
+
+function resetTimer() {
+  clearInterval(medInterval); medRunning = false;
+  medRemaining = medTotal;
+  document.getElementById('timer-toggle-btn').textContent = '▶ Start';
+  document.getElementById('phase-label').textContent = 'Press Start to begin';
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(medRemaining / 60);
+  const s = medRemaining % 60;
+  document.getElementById('timer-display').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  const circumference = 439.8;
+  const offset = circumference * (1 - medRemaining / medTotal);
+  document.getElementById('timer-ring').style.strokeDashoffset = offset;
+}
+
+// ══════════════════════════════════════════════
+// WEB AUDIO SOUNDS
+// ══════════════════════════════════════════════
+let audioCtx = null, currentNodes = [];
+
+function stopAllSounds() {
+  currentNodes.forEach(n => { try { n.stop(); } catch(e){} });
+  currentNodes = [];
+  document.querySelectorAll('.music-card').forEach(c => {
+    c.classList.remove('playing');
+    c.querySelectorAll('.vis-bar').forEach(b => b.classList.remove('active'));
+  });
+}
+
+function playSound(type, el) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const wasPlaying = el.classList.contains('playing');
+  stopAllSounds();
+  if (wasPlaying) { document.getElementById('now-playing').textContent = 'Click any sound to play 🎧'; return; }
+
+  el.classList.add('playing');
+  el.querySelectorAll('.vis-bar').forEach(b => b.classList.add('active'));
+  document.getElementById('now-playing').textContent = '🎵 Now playing: ' + el.querySelector('.name').textContent;
+
+  if (type === 'rain') createNoise(0.03, 'bandpass', 800, 2);
+  else if (type === 'ocean') createOcean();
+  else if (type === 'forest') createNoise(0.015, 'bandpass', 1200, 3);
+  else if (type === 'white') createNoise(0.04, 'allpass', 1000, 1);
+  else if (type === 'bowl') createBowl();
+  else if (type === 'binaural') createBinaural();
+}
+
+function createNoise(vol, filterType, freq, q) {
+  const bufSize = audioCtx.sampleRate * 2;
+  const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf; src.loop = true;
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = filterType; filter.frequency.value = freq; filter.Q.value = q;
+  const gain = audioCtx.createGain(); gain.gain.value = vol;
+  src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+  src.start(); currentNodes.push(src);
+}
+
+function createOcean() {
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  osc.frequency.value = 0.15; osc.type = 'sine';
+  gainNode.gain.value = 0;
+  osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+  osc.start();
+  // Oscillate gain for wave effect
+  const lfo = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  lfo.frequency.value = 0.1; lfoGain.gain.value = 0.3;
+  lfo.connect(lfoGain); lfoGain.connect(gainNode.gain);
+  lfo.start();
+  createNoise(0.025, 'lowpass', 400, 1);
+  currentNodes.push(osc, lfo);
+}
+
+function createBowl() {
+  function ring() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.value = 432; osc.type = 'sine';
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 4);
+    currentNodes.push(osc);
+    setTimeout(ring, 5000);
+  }
+  ring();
+}
+
+function createBinaural() {
+  const left = audioCtx.createOscillator();
+  const right = audioCtx.createOscillator();
+  const merger = audioCtx.createChannelMerger(2);
+  const gainL = audioCtx.createGain(); gainL.gain.value = 0.1;
+  const gainR = audioCtx.createGain(); gainR.gain.value = 0.1;
+  left.frequency.value = 200; right.frequency.value = 210;
+  left.connect(gainL); gainL.connect(merger, 0, 0);
+  right.connect(gainR); gainR.connect(merger, 0, 1);
+  merger.connect(audioCtx.destination);
+  left.start(); right.start();
+  currentNodes.push(left, right);
+}
+
+// ══════════════════════════════════════════════
+// ASSESSMENT QUIZ
+// ══════════════════════════════════════════════
+const quizData = {
+  anxiety: [
+    { q: "গত ২ সপ্তাহে কতবার অতিরিক্ত চিন্তা করেছো? / Feeling nervous or on edge?", opts: ["একদমই না / Not at all", "কয়েকদিন / Several days", "বেশিরভাগ দিন / More than half", "প্রায় সব দিন / Nearly every day"] },
+    { q: "চিন্তা থামাতে পারছিলে না? / Not able to stop worrying?", opts: ["একদমই না / Not at all", "কয়েকদিন / Several days", "বেশিরভাগ দিন / More than half", "প্রায় সব দিন / Nearly every day"] },
+    { q: "বিভিন্ন বিষয়ে চিন্তিত ছিলে? / Worrying about different things?", opts: ["একদমই না / Not at all", "কয়েকদিন / Several days", "বেশিরভাগ দিন / More than half", "প্রায় সব দিন / Nearly every day"] },
+    { q: "শিথিল হতে অসুবিধা হয়েছে? / Trouble relaxing?", opts: ["একদমই না / Not at all", "কয়েকদিন / Several days", "বেশিরভাগ দিন / More than half", "প্রায় সব দিন / Nearly every day"] },
+  ],
+  depression: [
+    { q: "কাজে আগ্রহ কম ছিল? / Little interest or pleasure in doing things?", opts: ["একদমই না / Not at all", "কয়েকদিন / Several days", "বেশিরভাগ দিন / More than half", "প্রায় সব দিন / Nearly every day"] },
+    { q: "মন খারাপ বা হতাশ লাগছিল? / Feeling down or hopeless?", opts: ["একদমই না / Not at all", "কয়েকদিন / Several days", "বেশিরভাগ দিন / More than half", "প্রায় সব দিন / Nearly every day"] },
+    { q: "ঘুম কম বা বেশি হচ্ছিল? / Trouble sleeping or sleeping too much?", opts: ["একদমই না / Not at all", "কয়েকদিন / Several days", "বেশিরভাগ দিন / More than half", "প্রায় সব দিন / Nearly every day"] },
+    { q: "ক্লান্ত বা শক্তিহীন মনে হচ্ছিল? / Feeling tired or having little energy?", opts: ["একদমই না / Not at all", "কয়েকদিন / Several days", "বেশিরভাগ দিন / More than half", "প্রায় সব দিন / Nearly every day"] },
+  ],
+  sleep: [
+    { q: "ঘুমাতে কতক্ষণ লাগে সাধারণত? / How long does it take to fall asleep?", opts: ["১৫ মিনিটের কম / Under 15 min", "১৫-৩০ মিনিট / 15-30 min", "৩০-৬০ মিনিট / 30-60 min", "১ ঘণ্টার বেশি / Over 1 hour"] },
+    { q: "রাতে কতবার ঘুম ভাঙে? / How often do you wake up at night?", opts: ["কখনো না / Never", "১-২ বার / 1-2 times", "৩-৪ বার / 3-4 times", "৪+ বার / 4+ times"] },
+    { q: "সকালে উঠে কেমন অনুভব করো? / How do you feel in the morning?", opts: ["তাজা ও সতেজ / Refreshed", "মোটামুটি / Somewhat rested", "ক্লান্ত / Tired", "অনেক ক্লান্ত / Very tired"] },
+    { q: "ঘুমের মান কীভাবে মূল্যায়ন করবে? / How would you rate your sleep quality?", opts: ["খুব ভালো / Very good", "ভালো / Good", "খারাপ / Bad", "খুব খারাপ / Very bad"] },
+  ]
+};
+
+let currentQuiz = [], quizIndex = 0, quizAnswers = {}, quizType = '';
+
+function startQuiz(type) {
+  quizType = type;
+  currentQuiz = quizData[type];
+  quizIndex = 0; quizAnswers = {};
+  document.getElementById('quiz-container').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = currentQuiz[quizIndex];
+  document.getElementById('quiz-bar').style.width = ((quizIndex / currentQuiz.length) * 100) + '%';
+  document.getElementById('quiz-q').textContent = `Q${quizIndex + 1}. ${q.q}`;
+  document.getElementById('quiz-next').disabled = true;
+  document.getElementById('quiz-opts').innerHTML = q.opts.map((o, i) =>
+    `<button class="quiz-opt" onclick="selectOpt(${i},this)">${o}</button>`
+  ).join('');
+}
+
+function selectOpt(i, el) {
+  document.querySelectorAll('.quiz-opt').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  quizAnswers[`q${quizIndex + 1}`] = { score: i, text: el.textContent };
+  document.getElementById('quiz-next').disabled = false;
+}
+
+async function nextQuestion() {
+  quizIndex++;
+  if (quizIndex < currentQuiz.length) { showQuestion(); return; }
+  document.getElementById('quiz-bar').style.width = '100%';
+  document.getElementById('quiz-next').disabled = true;
+  document.getElementById('quiz-q').textContent = 'বিশ্লেষণ করা হচ্ছে... / Analyzing your answers...';
+  document.getElementById('quiz-opts').innerHTML = '';
+
+  const res = await fetch('/assessment', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ type: quizType, answers: quizAnswers })
+  });
+  const data = await res.json();
+  document.getElementById('quiz-container').style.display = 'none';
+  const result = document.getElementById('quiz-result');
+  result.style.display = 'block';
+  result.innerHTML = '📋 ' + data.result.replace(/\n/g, '<br/>');
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+window.onload = loadProfile;
+</script>
+</body>
+</html>
